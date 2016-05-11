@@ -8,7 +8,11 @@
 <h1 align="center">Life Game</h1>
 
 {% if agents|length<4 %}
-Waiting for agents to start the game. Current connected agents number is {{ agents|length }}.
+Waiting for agents to start the game. Current connected agents number is {{ agents|length }}:
+{%for agent in agents%}
+{{agent.isAlive}}
+{%endfor %}
+.
 {% else %}
 <table border="1" style="height: 90%; width: 100%;">
     <tr>
