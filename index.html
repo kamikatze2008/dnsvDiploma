@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 90%;">
+<head>
+    <meta charset="UTF-8">
+    <title>Life Game</title>
+</head>
+<body style="height: 100%;">
+<h1 align="center">Life Game</h1>
+
+{% if agents|length<4 %}
+Waiting for agents to start the game. Current connected agents number is {{ agents|length }}.
+{% else %}
+<table border="1" style="height: 90%; width: 100%;">
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    {% endif %}
+</table>
+</body>
+</html>
