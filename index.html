@@ -20,6 +20,11 @@ THIRD TEST
 {{item}}<br>
 {% endfor %}
 
+FOURTH TEST
+{% for item in global %}
+{{item}}<br>
+{% endfor %}
+
 {% if agents | length < 0 %}
 Waiting for agents to start the game. Current connected agents number is {{ agents|length }}:
 {% for agent in agents %}

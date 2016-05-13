@@ -24,8 +24,12 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
+knownAgents = list()
+
 
 class MainHandler(webapp2.RequestHandler):
+    global knownAgents
+
     def get(self):
         template_values = {
             'agents': [
@@ -38,6 +42,7 @@ class MainHandler(webapp2.RequestHandler):
             'temp': Agent(False, 2, 2).getSurroundedAgents(),
             'temp1': Agent(False, 0, 0).getSurroundedAgents(),
             'temp2': Agent(False, 4, 4).getSurroundedAgents(),
+            'global': knownAgents
         }
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
@@ -48,9 +53,22 @@ class Agent:
         self.isAlive = isAlive
         self.coordX = coordX
         self.coordY = coordY
+        self.isPresentInArray()
 
     def __str__(self):
         return "Agent:\nisAlive = %s\ncoordX = %s\ncoordY = %s" % (self.isAlive, self.coordX, self.coordY)
+
+    def isPresentInArray(self):
+        global knownAgents
+        if knownAgents is None:
+            knownAgents = list()
+            knownAgents.append(self)
+        for agent in knownAgents:
+            if agent is not None and agent.isAlive == self.isAlive and agent.coordY == self.coordY and agent.coordX == self.coordX:
+                return False
+            else:
+                knownAgents.append(self)
+                return True
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
@@ -58,7 +76,7 @@ class Agent:
         j = self.coordY - 1
         for i in range(self.coordX - 1, self.coordX + 2, 1):
             for j in range(self.coordY - 1, self.coordY + 2, 1):
-                if i >= 0 and j >= 0 and i<=4 and j<=4 and not (i == self.coordX and j == self.coordY):
+                if i >= 0 and j >= 0 and i <= 4 and j <= 4 and not (i == self.coordX and j == self.coordY):
                     surroundedAgents.append(Agent(True, i, j))
         print surroundedAgents
         logging.debug(surroundedAgents)
