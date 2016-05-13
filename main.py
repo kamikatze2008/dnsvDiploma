@@ -35,7 +35,9 @@ class MainHandler(webapp2.RequestHandler):
                 [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
                 [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)]
             ],
-            'temp': Agent(False, 3, 4).getSurroundedAgents()
+            'temp': Agent(False, 2, 2).getSurroundedAgents(),
+            'temp1': Agent(False, 0, 0).getSurroundedAgents(),
+            'temp2': Agent(False, 4, 4).getSurroundedAgents(),
         }
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
@@ -52,10 +54,12 @@ class Agent:
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
-        # i = 0
-        if self.coordX - 1 >= 0:
-            surroundedAgents.append(Agent(True, self.coordX - 1, self.coordY))
-            # i=i+1
+        i = self.coordX - 1
+        j = self.coordY - 1
+        for i in range(self.coordX - 1, self.coordX + 2, 1):
+            for j in range(self.coordY - 1, self.coordY + 2, 1):
+                if i >= 0 and j >= 0 and i<=4 and j<=4 and not (i == self.coordX and j == self.coordY):
+                    surroundedAgents.append(Agent(True, i, j))
         print surroundedAgents
         logging.debug(surroundedAgents)
         return surroundedAgents
