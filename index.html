@@ -6,6 +6,9 @@
 </head>
 <body style="height: 100%;">
 <h1 align="center">Life Game</h1>
+{% for item in temp %}
+{{item}}
+{% endfor %}
 
 {% if agents | length < 0 %}
 Waiting for agents to start the game. Current connected agents number is {{ agents|length }}:
