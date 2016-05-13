@@ -12,10 +12,12 @@ handlers:
   static_files: favicon.ico
   upload: favicon\.ico
 
-- url: .*
-  script: main.app
 - url: /remoteapi.*
   script: google.appengine.ext.remote_api.handler.application
+- url: /image
+  static_dir: image
+- url: .*
+  script: main.app
 
 libraries:
 - name: webapp2
