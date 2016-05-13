@@ -7,18 +7,30 @@
 <body style="height: 100%;">
 <h1 align="center">Life Game</h1>
 
-{% if agents|length<4 %}
+{% if agents | length < 0 %}
 Waiting for agents to start the game. Current connected agents number is {{ agents|length }}:
-{%for agent in agents%}
-{{agent.isAlive}}
-{%endfor %}
+{% for agent in agents %}
+{{ agent.isAlive }}
+{% endfor %}
 .
 {% else %}
 <table border="1" style="height: 90%; width: 100%;">
     <tr>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td>
+            {% if agents[0].isAlive == True %}
+            <img src="image/life_cell.jpg">
+            {% endif %}
+        </td>
+        <td>
+            {% if agents[1].isAlive == True %}
+            <img src="image/life_cell.jpg" alt="HERE IS LIFE">
+            {% endif %}
+        </td>
+        <td>
+            {% if agents[2].isAlive == True %}
+            <img src="image/life_cell.jpg" alt="HERE IS LIFE">
+            {% endif %}
+        </td>
         <td></td>
         <td></td>
     </tr>
