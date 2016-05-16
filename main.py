@@ -14,7 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import logging
 import os
 
 import jinja2
@@ -54,27 +53,28 @@ class Agent:
         self.isAlive = isAlive
         self.coordX = coordX
         self.coordY = coordY
-        self.isPresentInArray()
 
     def __str__(self):
         return "Agent:\nisAlive = %s\ncoordX = %s\ncoordY = %s" % (self.isAlive, self.coordX, self.coordY)
 
     def __eq__(self, other):
         if isinstance(other, Agent):
-            return self.isAlive == other.isAlive \
-                   and self.coordX == other.coordX and self.coordY == other.coordY
+            return self.coordX == other.coordX and self.coordY == other.coordY
         else:
             return False
 
-    def isPresentInArray(self):
+    def isPresentInFollowingCell(self):
+        global knownAgents
+        if not knownAgents or self not in knownAgents:
+            return False
+        else:
+            return True
+
+    def appendToAgentsList(self):
         global knownAgents
         if not knownAgents:
             knownAgents = list()
-        if self in knownAgents:
-            return True
-        else:
-            knownAgents.append(self)
-            return False
+        knownAgents.append(self)
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
@@ -84,8 +84,6 @@ class Agent:
             for j in range(self.coordY - 1, self.coordY + 2, 1):
                 if i >= 0 and j >= 0 and i <= 4 and j <= 4 and not (i == self.coordX and j == self.coordY):
                     surroundedAgents.append(Agent(True, i, j))
-        print surroundedAgents
-        logging.debug(surroundedAgents)
         return surroundedAgents
 
 

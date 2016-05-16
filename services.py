@@ -1,6 +1,6 @@
 from protorpc.wsgi import service
 
-import postservice
+import register_agent
 
 # Map the RPC service and path (/PostService)
-app = service.service_mappings([('/PostService', postservice.PostService)])
+app = service.service_mappings([('/RegisterAgent', register_agent.RegisterAgent)])
