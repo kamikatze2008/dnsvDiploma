@@ -14,10 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-import os
-import webapp2
-import jinja2
 import logging
+import os
+
+import jinja2
+import webapp2
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -60,7 +61,8 @@ class Agent:
 
     def __eq__(self, other):
         if isinstance(other, Agent):
-            return self.isAlive == other.isAlive and self.coordX == other.coordX and self.coordY == other.coordY
+            return self.isAlive == other.isAlive \
+                   and self.coordX == other.coordX and self.coordY == other.coordY
         else:
             return False
 
