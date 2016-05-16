@@ -58,17 +58,21 @@ class Agent:
     def __str__(self):
         return "Agent:\nisAlive = %s\ncoordX = %s\ncoordY = %s" % (self.isAlive, self.coordX, self.coordY)
 
+    def __eq__(self, other):
+        if isinstance(other, Agent):
+            return self.isAlive == other.isAlive and self.coordX == other.coordX and self.coordY == other.coordY
+        else:
+            return False
+
     def isPresentInArray(self):
         global knownAgents
-        if knownAgents is None:
+        if not knownAgents:
             knownAgents = list()
+        if self in knownAgents:
+            return True
+        else:
             knownAgents.append(self)
-        for agent in knownAgents:
-            if agent is not None and agent.isAlive == self.isAlive and agent.coordY == self.coordY and agent.coordX == self.coordX:
-                return False
-            else:
-                knownAgents.append(self)
-                return True
+            return False
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
