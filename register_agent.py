@@ -15,11 +15,13 @@ class AgentResponseMessage(messages.Message):
     isAgentCreated = messages.BooleanField(1, required=True)
 
 
+class AgentMessages(messages.Message):
+    agentMessage = messages.MessageField(AgentMessage, 1, repeated=True)
+
+
 class RegisterAgent(remote.Service):
-    # Add the remote decorator to indicate the service methods
     @remote.method(AgentMessage, AgentResponseMessage)
     def register(self, request):
-        # If the Note instance has a timestamp, use that timestamp
         if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
             tempAgent = main.Agent(request.isAlive, request.coordX, request.coordY)
             if (main.Agent.isPresentInFollowingCell(tempAgent)):
@@ -29,6 +31,26 @@ class RegisterAgent(remote.Service):
                 return AgentResponseMessage(isAgentCreated=True)
         else:
             return AgentResponseMessage(isAgentCreated=False)
+
+    @remote.method(AgentMessage, AgentMessages)
+    def processing(self, request):
+        if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
+            agents = main.Agent.getSurroundedAgents(main.Agent(request.isAlive, request.coordX, request.coordY))
+            agentMessageList = []
+            for tempAgent in agents:
+                agentMessageList.append(AgentMessage(isAlive=tempAgent.isAlive, coordX=tempAgent.coordX,
+                                                     coordY=tempAgent.coordY))
+            return AgentMessages(agentMessage=agentMessageList)
+        else:
+            return AgentMessages(agentMessage=None)  # @remote.method(AgentMessage, AgentResponseMessage)
+
+    @remote.method(AgentMessage, message_types.VoidMessage)
+    def unregister(self, request):
+        if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
+            tempAgent = main.Agent(request.isAlive, request.coordX, request.coordY)
+            if main.knownAgents.__contains__(tempAgent):
+                main.knownAgents.remove(tempAgent)
+                return message_types.VoidMessage()
 
     @remote.method(message_types.VoidMessage, AgentMessage)
     def empty(self, request):
