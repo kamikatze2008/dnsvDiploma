@@ -11,6 +11,13 @@ class AgentMessage(messages.Message):
     coordY = messages.IntegerField(3, required=True)
 
 
+class AgentUpdateMessage(messages.Message):
+    isAlive = messages.BooleanField(1, required=True)
+    coordX = messages.IntegerField(2, required=True)
+    coordY = messages.IntegerField(3, required=True)
+    newIsAlive = messages.BooleanField(4, required=True)
+
+
 class AgentResponseMessage(messages.Message):
     isAgentCreated = messages.BooleanField(1, required=True)
 
@@ -19,7 +26,7 @@ class AgentMessages(messages.Message):
     agentMessage = messages.MessageField(AgentMessage, 1, repeated=True)
 
 
-class RegisterAgent(remote.Service):
+class LifeGame(remote.Service):
     @remote.method(AgentMessage, AgentResponseMessage)
     def register(self, request):
         if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
@@ -32,8 +39,21 @@ class RegisterAgent(remote.Service):
         else:
             return AgentResponseMessage(isAgentCreated=False)
 
+    @remote.method(AgentUpdateMessage, AgentResponseMessage)
+    def update(self, request):
+        if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
+            tempAgent = main.Agent(request.isAlive, request.coordX, request.coordY)
+            if (main.Agent.isPresentInFollowingCell(tempAgent)):
+                for i, item in enumerate(main.knownAgents):
+                    main.knownAgents[i] = main.Agent(request.newIsAlive, request.coordX, request.coordY)
+                return AgentResponseMessage(isAgentCreated=request.newIsAlive)
+            else:
+                return AgentResponseMessage(isAgentCreated=not request.newIsAlive)
+        else:
+            return AgentResponseMessage(isAgentCreated=not request.newIsAlive)
+
     @remote.method(AgentMessage, AgentMessages)
-    def processing(self, request):
+    def process(self, request):
         if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
             agents = main.Agent.getSurroundedAgents(main.Agent(request.isAlive, request.coordX, request.coordY))
             agentMessageList = []

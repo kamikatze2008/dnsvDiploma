@@ -16,7 +16,7 @@ handlers:
 - url: /image
   static_dir: image
 
-- url: /RegisterAgent.*
+- url: /LifeGame.*
   script: services.app
 
 - url: .*
