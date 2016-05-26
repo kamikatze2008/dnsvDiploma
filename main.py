@@ -24,25 +24,28 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-knownAgents = list()
-
 
 class MainHandler(webapp2.RequestHandler):
-    global knownAgents
+    knownAgents = [[None, None, None, None, None], [None, None, None, None, None], [None, None, None, None, None],
+                   [None, None, None, None, None], [None, None, None, None, None]]
+
+
 
     def get(self):
         template_values = {
-            'agents': [
-                [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
-                [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
-                [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
-                [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
-                [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)]
-            ],
+            'agents':
+                MainHandler.knownAgents,
+            # [
+            # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
+            # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
+            # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
+            # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
+            # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)]
+            # ],
             'temp': Agent(False, 2, 2).getSurroundedAgents(),
             'temp1': Agent(False, 0, 0).getSurroundedAgents(),
             'temp2': Agent(False, 4, 4).getSurroundedAgents(),
-            'global': knownAgents
+            'global': MainHandler.knownAgents
         }
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
@@ -64,17 +67,13 @@ class Agent:
             return False
 
     def isPresentInFollowingCell(self):
-        global knownAgents
-        if not knownAgents or self not in knownAgents:
+        if not MainHandler.knownAgents or self not in MainHandler.knownAgents:
             return False
         else:
             return True
 
     def appendToAgentsList(self):
-        global knownAgents
-        if not knownAgents:
-            knownAgents = list()
-        knownAgents.append(self)
+        MainHandler.knownAgents[self.coordX][self.coordY] = self
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
