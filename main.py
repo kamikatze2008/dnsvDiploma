@@ -18,6 +18,7 @@ import os
 
 import jinja2
 import webapp2
+from google.appengine.api import memcache
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -25,16 +26,20 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     autoescape=True)
 
 
+def getKnownAgents():
+    return memcache.get('knownAgents')
+
+
 class MainHandler(webapp2.RequestHandler):
-    knownAgents = [[None, None, None, None, None], [None, None, None, None, None], [None, None, None, None, None],
-                   [None, None, None, None, None], [None, None, None, None, None]]
-
-
+    knownAgents = [
+        [None, None, None, None, None], [None, None, None, None, None], [None, None, None, None, None],
+        [None, None, None, None, None], [None, None, None, None, None]]
 
     def get(self):
         template_values = {
             'agents':
-                MainHandler.knownAgents,
+                memcache.get('knownAgents'),
+            # MainHandler.knownAgents,
             # [
             # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
             # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
@@ -67,13 +72,18 @@ class Agent:
             return False
 
     def isPresentInFollowingCell(self):
-        if not MainHandler.knownAgents or self not in MainHandler.knownAgents:
-            return False
-        else:
-            return True
+        # if not MainHandler.knownAgents or self not in MainHandler.knownAgents:
+        #     return False
+        # else:
+        return False
 
     def appendToAgentsList(self):
-        MainHandler.knownAgents[self.coordX][self.coordY] = self
+        if memcache.get('knownAgents') is None:
+            memcache.add('knownAgents', MainHandler.knownAgents)
+        else:
+            MainHandler.knownAgents = memcache.get('knownAgents')
+            MainHandler.knownAgents[self.coordX][self.coordY] = self
+            memcache.replace('knownAgents', MainHandler.knownAgents)
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
@@ -82,7 +92,7 @@ class Agent:
         for i in range(self.coordX - 1, self.coordX + 2, 1):
             for j in range(self.coordY - 1, self.coordY + 2, 1):
                 if i >= 0 and j >= 0 and i <= 4 and j <= 4 and not (i == self.coordX and j == self.coordY):
-                    surroundedAgents.append(Agent(True, i, j))
+                    surroundedAgents.append(memcache.get('knownAgents')[i][j])
         return surroundedAgents
 
 

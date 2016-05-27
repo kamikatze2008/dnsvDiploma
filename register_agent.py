@@ -1,8 +1,10 @@
+from google.appengine.api import memcache
 from protorpc import message_types
 from protorpc import messages
 from protorpc import remote
 
 import main
+
 
 class AgentMessage(messages.Message):
     isAlive = messages.BooleanField(1, required=True)
@@ -28,7 +30,7 @@ class AgentMessages(messages.Message):
 class LifeGame(remote.Service):
     agentsToUpdate = [[None, None, None, None, None], [None, None, None, None, None], [None, None, None, None, None],
                       [None, None, None, None, None], [None, None, None, None, None]]
-    
+
     @remote.method(AgentMessage, AgentResponseMessage)
     def register(self, request):
         if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
@@ -45,18 +47,18 @@ class LifeGame(remote.Service):
     def update(self, request):
         if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
             tempAgent = main.Agent(request.isAlive, request.coordX, request.coordY)
-            if main.Agent.isPresentInFollowingCell(tempAgent):
-                LifeGame.agentsToUpdate[tempAgent.coordX][tempAgent.coordY] = main.Agent(request.newIsAlive, request.coordX,
-                                                                                request.coordY)
+            # if main.Agent.isPresentInFollowingCell(tempAgent):
+            LifeGame.agentsToUpdate[tempAgent.coordX][tempAgent.coordY] = main.Agent(request.newIsAlive, request.coordX,
+                                                                                     request.coordY)
             noneFlag = 0
             for agentToUpdate in LifeGame.agentsToUpdate:
                 if agentToUpdate.__contains__(None):
                     noneFlag += 1
             if noneFlag == 0:
-                main.MainHandler.knownAgents = LifeGame.agentsToUpdate
+                memcache.replace('knownAgents', LifeGame.agentsToUpdate)
                 LifeGame.agentsToUpdate = [[None, None, None, None, None], [None, None, None, None, None],
-                                  [None, None, None, None, None],
-                                  [None, None, None, None, None], [None, None, None, None, None]]
+                                           [None, None, None, None, None],
+                                           [None, None, None, None, None], [None, None, None, None, None]]
                 return AgentResponseMessage(isAgentCreated=request.newIsAlive)
             else:
                 return AgentResponseMessage(isAgentCreated=not request.newIsAlive)
