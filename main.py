@@ -36,6 +36,8 @@ class MainHandler(webapp2.RequestHandler):
         [None, None, None, None, None], [None, None, None, None, None]]
 
     def get(self):
+        if memcache.get('knownAgents') is None:
+            memcache.add('knownAgents', MainHandler.knownAgents)
         template_values = {
             'agents':
                 memcache.get('knownAgents'),
@@ -47,10 +49,7 @@ class MainHandler(webapp2.RequestHandler):
             # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)],
             # [Agent(True), Agent(False), Agent(True), Agent(False), Agent(True)]
             # ],
-            'temp': Agent(False, 2, 2).getSurroundedAgents(),
-            'temp1': Agent(False, 0, 0).getSurroundedAgents(),
-            'temp2': Agent(False, 4, 4).getSurroundedAgents(),
-            'global': MainHandler.knownAgents
+            'global': memcache.get('knownAgents')
         }
         template = JINJA_ENVIRONMENT.get_template('index.html')
         self.response.write(template.render(template_values))
@@ -79,6 +78,7 @@ class Agent:
 
     def appendToAgentsList(self):
         if memcache.get('knownAgents') is None:
+            MainHandler.knownAgents[self.coordX][self.coordY] = self
             memcache.add('knownAgents', MainHandler.knownAgents)
         else:
             MainHandler.knownAgents = memcache.get('knownAgents')
@@ -87,11 +87,9 @@ class Agent:
 
     def getSurroundedAgents(self):
         surroundedAgents = list()
-        i = self.coordX - 1
-        j = self.coordY - 1
         for i in range(self.coordX - 1, self.coordX + 2, 1):
             for j in range(self.coordY - 1, self.coordY + 2, 1):
-                if i >= 0 and j >= 0 and i <= 4 and j <= 4 and not (i == self.coordX and j == self.coordY):
+                if i >= 0 and j >= 0 and i <= 4 and j <= 4 and not (i == self.coordX and j == self.coordY) and memcache.get('knownAgents')[i][j] is not None:
                     surroundedAgents.append(memcache.get('knownAgents')[i][j])
         return surroundedAgents
 
