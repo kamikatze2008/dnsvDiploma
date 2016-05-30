@@ -28,17 +28,15 @@ class AgentMessages(messages.Message):
 
 
 class LifeGame(remote.Service):
-
-
     @remote.method(AgentMessage, AgentResponseMessage)
     def register(self, request):
         if request.isAlive is not None and request.coordX is not None and request.coordY is not None:
             tempAgent = main.Agent(request.isAlive, request.coordX, request.coordY)
-            # if (main.Agent.isPresentInFollowingCell(tempAgent)):
-            #     return AgentResponseMessage(isAgentCreated=False)
-            # else:
-            main.Agent.appendToAgentsList(tempAgent)
-            return AgentResponseMessage(isAgentCreated=True)
+            if (main.Agent.isPresentInFollowingCell(tempAgent)):
+                return AgentResponseMessage(isAgentCreated=False)
+            else:
+                main.Agent.appendToAgentsList(tempAgent)
+                return AgentResponseMessage(isAgentCreated=True)
         else:
             return AgentResponseMessage(isAgentCreated=False)
 
@@ -52,14 +50,14 @@ class LifeGame(remote.Service):
                                   [None, None, None, None, None],
                                   [None, None, None, None, None], [None, None, None, None, None]]
                 agentsToUpdate[tempAgent.coordX][tempAgent.coordY] = main.Agent(request.newIsAlive,
-                                                                                         request.coordX,
-                                                                                         request.coordY)
+                                                                                request.coordX,
+                                                                                request.coordY)
                 memcache.add('agentToUpdate', agentsToUpdate)
             else:
                 agentsToUpdate = memcache.get('agentToUpdate')
                 agentsToUpdate[tempAgent.coordX][tempAgent.coordY] = main.Agent(request.newIsAlive,
-                                                                                         request.coordX,
-                                                                                         request.coordY)
+                                                                                request.coordX,
+                                                                                request.coordY)
                 memcache.replace('agentToUpdate', agentsToUpdate)
             noneFlag = 0
             for agentToUpdate in agentsToUpdate:
@@ -69,8 +67,8 @@ class LifeGame(remote.Service):
             if noneFlag == 0:
                 memcache.replace('knownAgents', agentsToUpdate)
                 agentsToUpdate = [[None, None, None, None, None], [None, None, None, None, None],
-                                           [None, None, None, None, None],
-                                           [None, None, None, None, None], [None, None, None, None, None]]
+                                  [None, None, None, None, None],
+                                  [None, None, None, None, None], [None, None, None, None, None]]
                 memcache.replace('agentToUpdate', agentsToUpdate)
                 return AgentResponseMessage(isAgentCreated=request.newIsAlive)
             else:
@@ -100,6 +98,10 @@ class LifeGame(remote.Service):
                 main.MainHandler.knownAgents.remove(tempAgent)
                 return message_types.VoidMessage()
 
-    @remote.method(message_types.VoidMessage, AgentMessage)
-    def empty(self):
-        return AgentMessage(isAlive=True, coordX=-1, coordY=-1)
+    @remote.method(message_types.VoidMessage, message_types.VoidMessage)
+    def clear(self):
+        agentsToUpdate = [[None, None, None, None, None], [None, None, None, None, None],
+                          [None, None, None, None, None],
+                          [None, None, None, None, None], [None, None, None, None, None]]
+        memcache.replace('agentToUpdate', agentsToUpdate)
+        memcache.replace('knownAgents', agentsToUpdate)
